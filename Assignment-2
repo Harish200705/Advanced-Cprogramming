@@ -1,0 +1,335 @@
+ADVANCE C PROGRAMMING – MODULE 2 ASSIGNMENT
+1. Program to Define 3 Different Threads
+C Program
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+
+int N;
+
+/* Signal Handler */
+void sigint_handler(int sig)
+{
+    printf("\nSIGINT received. Program termination prevented.\n");
+}
+
+/* Prime Number Check */
+int isPrime(int num)
+{
+    if(num < 2)
+        return 0;
+
+    for(int i = 2; i * i <= num; i++)
+    {
+        if(num % i == 0)
+            return 0;
+    }
+
+    return 1;
+}
+
+/* Thread A */
+void *sumPrimes(void *arg)
+{
+    clock_t start = clock();
+
+    int count = 0;
+    int num = 2;
+    long long sum = 0;
+
+    while(count < N)
+    {
+        if(isPrime(num))
+        {
+            sum += num;
+            count++;
+        }
+        num++;
+    }
+
+    clock_t end = clock();
+
+    printf("\nThread A Completed\n");
+    printf("Sum of first %d prime numbers = %lld\n", N, sum);
+
+    double time_taken =
+        ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("Execution Time = %.6f seconds\n", time_taken);
+
+    pthread_exit(NULL);
+}
+
+/* Thread B */
+void *thread1(void *arg)
+{
+    time_t start = time(NULL);
+
+    while(time(NULL) - start < 100)
+    {
+        printf("Thread 1 running\n");
+        sleep(2);
+    }
+
+    pthread_exit(NULL);
+}
+
+/* Thread C */
+void *thread2(void *arg)
+{
+    time_t start = time(NULL);
+
+    while(time(NULL) - start < 100)
+    {
+        printf("Thread 2 running\n");
+        sleep(3);
+    }
+
+    pthread_exit(NULL);
+}
+
+int main()
+{
+    signal(SIGINT, sigint_handler);
+
+    printf("Enter N: ");
+    scanf("%d", &N);
+
+    pthread_t tA, tB, tC;
+
+    pthread_create(&tA, NULL, sumPrimes, NULL);
+    pthread_create(&tB, NULL, thread1, NULL);
+    pthread_create(&tC, NULL, thread2, NULL);
+
+    pthread_join(tA, NULL);
+    pthread_join(tB, NULL);
+    pthread_join(tC, NULL);
+
+    printf("\nAll threads completed.\n");
+
+    return 0;
+}
+
+
+
+Signal Handling (SIGINT)
+Signal Handler Code
+
+void sigint_handler(int sig)
+{
+    printf("\nSIGINT received. Program termination prevented.\n");
+}
+
+Registration
+
+signal(SIGINT, sigint_handler);
+
+
+
+
+3. Notes on Exploration Topics
+
+
+A. Child Process – fork()
+
+A process is an executing instance of a program. In Unix and Linux systems, a new process can be created using the fork() system call.
+
+The fork() function creates a child process that is almost identical to the parent process. After fork() is called, both the parent and child continue execution from the next instruction.
+
+Return Values of fork()
+Returns 0 in the child process.
+Returns the child's Process ID (PID) in the parent process.
+Returns -1 if process creation fails.
+Characteristics of fork()
+Parent and child execute independently.
+Each process has its own memory space.
+Variables are copied from the parent to the child.
+The child receives a unique Process ID.
+Applications
+Process creation in operating systems.
+Shell command execution.
+Server process management.
+Parallel computing.
+B. Handling Common Signals
+
+Signals are software interrupts used to notify a process that a specific event has occurred.
+
+SIGINT
+
+Generated when the user presses Ctrl + C.
+
+Default action:
+Terminate the process.
+
+Typical use:
+Interrupting a running program.
+
+SIGTERM
+
+Used to request graceful process termination.
+
+Default action:
+Terminate the process.
+
+Typical use:
+Stopping applications safely.
+
+SIGKILL
+
+Forces immediate process termination.
+
+Characteristics:
+
+Cannot be caught.
+Cannot be ignored.
+Cannot be handled.
+
+Typical use:
+Terminating unresponsive processes.
+
+SIGSEGV
+
+Generated when a program attempts invalid memory access.
+
+Common causes:
+
+Dereferencing a NULL pointer.
+Accessing memory outside array bounds.
+Using invalid memory addresses.
+
+Default action:
+Program termination with a segmentation fault error.
+
+SIGALRM
+
+Generated when a timer set using alarm() expires.
+
+Typical use:
+Timeout management.
+
+C. Exploring Different Kernel Crashes
+
+A kernel crash, commonly known as a kernel panic, occurs when the operating system kernel encounters a critical error from which it cannot recover.
+
+Common Causes
+Faulty device drivers.
+Corrupted kernel modules.
+Invalid memory access in kernel mode.
+Hardware failures.
+Stack overflow.
+Synchronization errors.
+Symptoms
+System freeze.
+Unexpected reboot.
+Kernel panic message.
+System becoming unresponsive.
+Prevention
+Use stable device drivers.
+Regularly update the operating system.
+Perform memory diagnostics.
+Validate kernel modules before installation.
+Follow proper synchronization practices.
+D. Time Complexity
+
+Time complexity measures how the execution time of an algorithm grows with input size.
+
+Common Time Complexities
+O(1) – Constant Time
+
+Execution time remains constant regardless of input size.
+
+Example:
+Accessing an array element.
+
+O(log n) – Logarithmic Time
+
+Execution time increases slowly as input size grows.
+
+Example:
+Binary Search.
+
+O(n) – Linear Time
+
+Execution time increases proportionally with input size.
+
+Example:
+Linear Search.
+
+O(n log n)
+
+Commonly seen in efficient sorting algorithms.
+
+Examples:
+
+Merge Sort
+Heap Sort
+Quick Sort (average case)
+O(n²) – Quadratic Time
+
+Execution time grows rapidly with input size.
+
+Example:
+Bubble Sort.
+
+O(2ⁿ) – Exponential Time
+
+Execution time doubles with every increase in input size.
+
+Example:
+Recursive Fibonacci algorithm.
+
+O(n!)
+
+Extremely expensive complexity.
+
+Example:
+Brute-force Traveling Salesman Problem.
+
+Importance of Time Complexity
+Predicts algorithm performance.
+Helps compare algorithms.
+Improves software scalability.
+Assists in optimization.
+E. Locking Mechanisms – Mutex and Spinlock
+
+In multithreaded programs, multiple threads may try to access shared resources simultaneously. Locking mechanisms are used to prevent race conditions and ensure data consistency.
+
+Mutex (Mutual Exclusion Lock)
+
+A mutex allows only one thread at a time to enter a critical section.
+
+When a thread acquires a mutex, all other threads attempting to acquire the same mutex must wait until it is released.
+
+Advantages of Mutex
+Efficient for long waiting periods.
+Conserves CPU resources.
+Suitable for user-space applications.
+Disadvantages of Mutex
+Context switching overhead.
+Slightly slower for very short critical sections.
+Applications
+Shared counters.
+Shared files.
+Database access.
+Resource management.
+Spinlock
+
+A spinlock continuously checks whether a lock is available instead of sleeping.
+
+The waiting thread repeatedly executes a loop until the lock becomes free.
+
+Advantages of Spinlock
+No context-switching overhead.
+Very fast for short critical sections.
+Suitable for kernel-level programming.
+Disadvantages of Spinlock
+Wastes CPU cycles while waiting.
+Not suitable for long waiting periods.
+Applications
+Operating system kernels.
+Device drivers.
+Multiprocessor synchronization.
