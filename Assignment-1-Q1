@@ -1,0 +1,72 @@
+//Structures – Weekly Calendar
+
+#include <stdio.h>
+#include <string.h>
+
+#define DAYS 7
+#define MAX_TASKS 3
+#define MAX_LEN 100
+
+struct Day {
+    char dayName[20];
+    char tasks[MAX_TASKS][MAX_LEN];
+    int taskCount;
+};
+
+int main() {
+    struct Day week[DAYS] = {
+        {"Monday", {}, 0},
+        {"Tuesday", {}, 0},
+        {"Wednesday", {}, 0},
+        {"Thursday", {}, 0},
+        {"Friday", {}, 0},
+        {"Saturday", {}, 0},
+        {"Sunday", {}, 0}
+    };
+
+    int day, n, i;
+
+    while (1) {
+        printf("\nSelect Day (1-7) [1-Mon ... 7-Sun, 0-Exit]: ");
+        scanf("%d", &day);
+
+        if (day == 0)
+            break;
+
+        if (day < 1 || day > 7) {
+            printf("Invalid day!\n");
+            continue;
+        }
+
+        printf("Enter number of tasks (max 3): ");
+        scanf("%d", &n);
+        getchar();
+
+        if (n > MAX_TASKS)
+            n = MAX_TASKS;
+
+        week[day - 1].taskCount = n;
+
+        for (i = 0; i < n; i++) {
+            printf("Task %d: ", i + 1);
+            fgets(week[day - 1].tasks[i], MAX_LEN, stdin);
+            week[day - 1].tasks[i][strcspn(week[day - 1].tasks[i], "\n")] = '\0';
+        }
+    }
+
+    printf("\n===== Weekly Calendar =====\n");
+
+    for (i = 0; i < DAYS; i++) {
+        printf("\n%s:\n", week[i].dayName);
+
+        if (week[i].taskCount == 0) {
+            printf("No tasks\n");
+        } else {
+            for (int j = 0; j < week[i].taskCount; j++) {
+                printf("- %s\n", week[i].tasks[j]);
+            }
+        }
+    }
+
+    return 0;
+}
