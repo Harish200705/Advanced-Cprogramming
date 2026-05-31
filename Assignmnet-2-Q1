@@ -1,0 +1,122 @@
+//Program Using 3 Threads
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
+#include <time.h>
+
+int N;
+
+/* Signal Handler */
+void sigint_handler(int sig)
+{
+    printf("\nSIGINT received. Program termination prevented.\n");
+}
+
+/* Prime Check Function */
+int isPrime(int num)
+{
+    if(num < 2)
+        return 0;
+
+    for(int i=2;i*i<=num;i++)
+    {
+        if(num%i==0)
+            return 0;
+    }
+    return 1;
+}
+
+/* Thread A */
+void *sumPrimes(void *arg)
+{
+    clock_t start = clock();
+
+    int count = 0;
+    int num = 2;
+    long long sum = 0;
+
+    while(count < N)
+    {
+        if(isPrime(num))
+        {
+            sum += num;
+            count++;
+        }
+        num++;
+    }
+
+    clock_t end = clock();
+
+    printf("\nThread A Completed\n");
+    printf("Sum of first %d prime numbers = %lld\n", N, sum);
+
+    double time_taken =
+        ((double)(end-start))/CLOCKS_PER_SEC;
+
+    printf("Thread A Execution Time = %.6f sec\n",
+            time_taken);
+
+    pthread_exit(NULL);
+}
+
+/* Thread B */
+void *thread1(void *arg)
+{
+    time_t start = time(NULL);
+
+    while(time(NULL)-start < 100)
+    {
+        printf("Thread 1 running\n");
+        sleep(2);
+    }
+
+    pthread_exit(NULL);
+}
+
+/* Thread C */
+void *thread2(void *arg)
+{
+    time_t start = time(NULL);
+
+    while(time(NULL)-start < 100)
+    {
+        printf("Thread 2 running\n");
+        sleep(3);
+    }
+
+    pthread_exit(NULL);
+}
+
+int main()
+{
+    signal(SIGINT, sigint_handler);
+
+    printf("Enter N: ");
+    scanf("%d",&N);
+
+    pthread_t tA,tB,tC;
+
+    clock_t totalStart = clock();
+
+    pthread_create(&tA,NULL,sumPrimes,NULL);
+    pthread_create(&tB,NULL,thread1,NULL);
+    pthread_create(&tC,NULL,thread2,NULL);
+
+    pthread_join(tA,NULL);
+    pthread_join(tB,NULL);
+    pthread_join(tC,NULL);
+
+    clock_t totalEnd = clock();
+
+    printf("\nAll threads completed.\n");
+
+    double totalTime =
+        ((double)(totalEnd-totalStart))/CLOCKS_PER_SEC;
+
+    printf("Total CPU Time = %.6f sec\n",totalTime);
+
+    return 0;
+}
