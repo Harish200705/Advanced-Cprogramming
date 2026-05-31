@@ -1,0 +1,47 @@
+//Pointers – Stable Even/Odd Rearrangement Using Pointer Arithmetic
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void rearrange(int *arr, int size) {
+    int *temp = (int *)malloc(size * sizeof(int));
+    int *ptr = arr;
+    int *t = temp;
+
+    /* Copy even numbers */
+    for (; ptr < arr + size; ptr++) {
+        if (*ptr % 2 == 0)
+            *t++ = *ptr;
+    }
+
+    /* Copy odd numbers */
+    for (ptr = arr; ptr < arr + size; ptr++) {
+        if (*ptr % 2 != 0)
+            *t++ = *ptr;
+    }
+
+    /* Copy back */
+    ptr = arr;
+    t = temp;
+
+    while (ptr < arr + size)
+        *ptr++ = *t++;
+
+    free(temp);
+}
+
+int main() {
+    int arr[] = {7, 2, 5, 8, 4, 1, 6, 3};
+    int size = sizeof(arr) / sizeof(arr[0]);
+
+    rearrange(arr, size);
+
+    printf("Rearranged Array:\n");
+
+    for (int *p = arr; p < arr + size; p++)
+        printf("%d ", *p);
+
+    printf("\n");
+
+    return 0;
+}
